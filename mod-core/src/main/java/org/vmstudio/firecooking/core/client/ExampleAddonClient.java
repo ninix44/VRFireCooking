@@ -1,9 +1,9 @@
-package your.mod.example.core.client;
+package org.vmstudio.firecooking.core.client;
 
 import org.vmstudio.visor.api.VisorAPI;
 import org.vmstudio.visor.api.common.addon.VisorAddon;
-import your.mod.example.core.client.overlays.VROverlayExample;
-import your.mod.example.core.common.VisorExample;
+import org.vmstudio.firecooking.core.client.overlays.VROverlayExample;
+import org.vmstudio.firecooking.core.common.VisorExample;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -27,7 +27,7 @@ public class ExampleAddonClient implements VisorAddon {
 
     @Override
     public @Nullable String getAddonPackagePath() {
-        return "your.mod.example.core.client";
+        return "org.vmstudio.firecooking.core.client";
     }
 
     @Override

@@ -1,9 +1,9 @@
-package your.mod.example.fabric;
+package org.vmstudio.firecooking.fabric;
 
 import org.vmstudio.visor.api.ModLoader;
 import org.vmstudio.visor.api.VisorAPI;
-import your.mod.example.core.client.ExampleAddonClient;
-import your.mod.example.core.server.ExampleAddonServer;
+import org.vmstudio.firecooking.core.client.ExampleAddonClient;
+import org.vmstudio.firecooking.core.server.ExampleAddonServer;
 import net.fabricmc.api.ModInitializer;
 
 public class ExampleMod implements ModInitializer {

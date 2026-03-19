@@ -1,10 +1,10 @@
-package your.mod.example.forge;
+package org.vmstudio.firecooking.forge;
 
 import org.vmstudio.visor.api.ModLoader;
 import org.vmstudio.visor.api.VisorAPI;
-import your.mod.example.core.client.ExampleAddonClient;
-import your.mod.example.core.common.VisorExample;
-import your.mod.example.core.server.ExampleAddonServer;
+import org.vmstudio.firecooking.core.client.ExampleAddonClient;
+import org.vmstudio.firecooking.core.common.VisorExample;
+import org.vmstudio.firecooking.core.server.ExampleAddonServer;
 import net.minecraftforge.fml.common.Mod;
 
 @Mod(VisorExample.MOD_ID)
