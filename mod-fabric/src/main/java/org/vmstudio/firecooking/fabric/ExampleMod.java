@@ -39,19 +39,6 @@ public class ExampleMod implements ModInitializer {
             });
         });
 
-        ServerPlayNetworking.registerGlobalReceiver(FireCookingNetworking.EAT_ITEM_PACKET, (server, player, handler, buf, responseSender) -> {
-            boolean isMainHand = buf.readBoolean();
-            server.execute(() -> {
-                InteractionHand hand = isMainHand ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND;
-                ItemStack stack = player.getItemInHand(hand);
-
-                if (!stack.isEmpty() && stack.getItem().isEdible()) {
-                    ItemStack result = stack.finishUsingItem(player.level(), player);
-                    player.setItemInHand(hand, result);
-                }
-            });
-        });
-
         if(ModLoader.get().isDedicatedServer()){
             VisorAPI.registerAddon(
                     new ExampleAddonServer()
@@ -61,20 +48,10 @@ public class ExampleMod implements ModInitializer {
                     new ExampleAddonClient()
             );
 
-            FireCookingLogic.bridge = new FireCookingLogic.NetworkBridge() {
-                @Override
-                public void sendCookEvent(boolean isMainHand) {
-                    FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
-                    buf.writeBoolean(isMainHand);
-                    ClientPlayNetworking.send(FireCookingNetworking.COOK_ITEM_PACKET, buf);
-                }
-
-                @Override
-                public void sendEatEvent(boolean isMainHand) {
-                    FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
-                    buf.writeBoolean(isMainHand);
-                    ClientPlayNetworking.send(FireCookingNetworking.EAT_ITEM_PACKET, buf);
-                }
+            FireCookingLogic.bridge = isMainHand -> {
+                FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
+                buf.writeBoolean(isMainHand);
+                ClientPlayNetworking.send(FireCookingNetworking.COOK_ITEM_PACKET, buf);
             };
 
             ClientTickEvents.END_CLIENT_TICK.register(client -> FireCookingLogic.tick());

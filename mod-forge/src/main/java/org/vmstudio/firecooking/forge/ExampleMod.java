@@ -35,17 +35,8 @@ public class ExampleMod {
         CHANNEL.registerMessage(0, ActionPacket.class, ActionPacket::encode, ActionPacket::decode, ActionPacket::handle);
 
         if (!ModLoader.get().isDedicatedServer()) {
-            FireCookingLogic.bridge = new FireCookingLogic.NetworkBridge() {
-                @Override
-                public void sendCookEvent(boolean isMainHand) {
-                    CHANNEL.sendToServer(new ActionPacket(isMainHand, 0));
-                }
 
-                @Override
-                public void sendEatEvent(boolean isMainHand) {
-                    CHANNEL.sendToServer(new ActionPacket(isMainHand, 1));
-                }
-            };
+            FireCookingLogic.bridge = isMainHand -> CHANNEL.sendToServer(new ActionPacket(isMainHand));
 
             MinecraftForge.EVENT_BUS.addListener(this::onClientTick);
         }
@@ -69,20 +60,17 @@ public class ExampleMod {
 
     public static class ActionPacket {
         private final boolean isMainHand;
-        private final int action;
 
-        public ActionPacket(boolean isMainHand, int action) {
+        public ActionPacket(boolean isMainHand) {
             this.isMainHand = isMainHand;
-            this.action = action;
         }
 
         public static void encode(ActionPacket msg, FriendlyByteBuf buf) {
             buf.writeBoolean(msg.isMainHand);
-            buf.writeInt(msg.action);
         }
 
         public static ActionPacket decode(FriendlyByteBuf buf) {
-            return new ActionPacket(buf.readBoolean(), buf.readInt());
+            return new ActionPacket(buf.readBoolean());
         }
 
         public static void handle(ActionPacket msg, Supplier<NetworkEvent.Context> ctx) {
@@ -93,19 +81,14 @@ public class ExampleMod {
                 InteractionHand hand = msg.isMainHand ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND;
                 ItemStack stack = player.getItemInHand(hand);
 
-                if (msg.action == 0) {
-                    if (!stack.isEmpty() && FireCookingLogic.COOKING_MAP.containsKey(stack.getItem())) {
-                        Item cookedItem = FireCookingLogic.COOKING_MAP.get(stack.getItem());
-                        stack.shrink(1);
-                        ItemStack cookedStack = new ItemStack(cookedItem);
-                        if (stack.isEmpty()) player.setItemInHand(hand, cookedStack);
-                        else if (!player.getInventory().add(cookedStack)) player.drop(cookedStack, false);
-                    }
-                }
-                else if (msg.action == 1) {
-                    if (!stack.isEmpty() && stack.getItem().isEdible()) {
-                        ItemStack result = stack.finishUsingItem(player.level(), player);
-                        player.setItemInHand(hand, result);
+                if (!stack.isEmpty() && FireCookingLogic.COOKING_MAP.containsKey(stack.getItem())) {
+                    Item cookedItem = FireCookingLogic.COOKING_MAP.get(stack.getItem());
+                    stack.shrink(1);
+                    ItemStack cookedStack = new ItemStack(cookedItem);
+                    if (stack.isEmpty()) {
+                        player.setItemInHand(hand, cookedStack);
+                    } else if (!player.getInventory().add(cookedStack)) {
+                        player.drop(cookedStack, false);
                     }
                 }
             });
